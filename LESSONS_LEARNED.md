@@ -215,3 +215,5 @@
 
 **需要完善**：
 - 可以为 `mvn compile -Dmaven.repo.local=/tmp/m2-repo` 注册 prefix_rule，避免每次重新审批
+- 2026-07-07: Maven 迁移至 /Users/gaofengshan/java/maven，settings.xml 配置 localRepository，不再需要 -Dmaven.repo.local 参数
+- 安装工具（Maven/Node/Docker 等）必须先问用户路径，不可擅自安装到工作目录

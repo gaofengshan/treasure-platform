@@ -1,14 +1,8 @@
 # 前端项目（独立仓库）
 treasure-ui/
 
-# Maven 本地安装
+# Maven 本地安装（已迁移至 /Users/gaofengshan/java/maven）
 .maven/
-
-# Maven 临时本地仓库
-/tmp/m2-repo
-
-# Node
-node_modules/
 
 # 构建产物
 dist/

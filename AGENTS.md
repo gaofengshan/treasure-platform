@@ -173,22 +173,22 @@ treasure-platform/
 
 ```sh
 # Maven 路径
-export PATH="/Users/gaofengshan/workSpace/codexSpace/.maven/bin:$PATH"
+export PATH="$MAVEN_HOME/bin"
 
 # 编译全部模块
-mvn compile -Dmaven.repo.local=/tmp/m2-repo -DskipTests
+mvn compile  -DskipTests
 
 # 打包
-mvn clean package -Dmaven.repo.local=/tmp/m2-repo -DskipTests
+mvn clean package  -DskipTests
 
 # 运行应用（开发模式）
-mvn spring-boot:run -pl treasure-web -am -Dmaven.repo.local=/tmp/m2-repo
+mvn spring-boot:run -pl treasure-web -am 
 
 # 运行全部测试
-mvn test -Dmaven.repo.local=/tmp/m2-repo
+mvn test 
 
 # 运行单模块测试
-mvn test -pl treasure-service -Dmaven.repo.local=/tmp/m2-repo
+mvn test -pl treasure-service 
 ```
 
 ### 前端（treasure-ui）
