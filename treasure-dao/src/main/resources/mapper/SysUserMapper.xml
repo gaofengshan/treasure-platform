@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.company.treasury.dao.mapper.SysUserMapper">
+
+    <resultMap id="BaseResultMap" type="com.company.treasury.dao.entity.SysUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="real_name" property="realName"/>
+        <result column="email" property="email"/>
+        <result column="phone" property="phone"/>
+        <result column="avatar" property="avatar"/>
+        <result column="status" property="status"/>
+        <result column="create_by" property="createBy"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_by" property="updateBy"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="del_flag" property="delFlag"/>
+    </resultMap>
+
+    <sql id="BaseColumns">
+        id, username, password, real_name, email, phone, avatar, status,
+        create_by, create_time, update_by, update_time, del_flag
+    </sql>
+
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_user WHERE id = #{id} AND del_flag = 0
+    </select>
+
+    <select id="selectByUsername" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_user WHERE username = #{username} AND del_flag = 0
+    </select>
+
+    <select id="selectPage" resultMap="BaseResultMap">
+        SELECT <include refid="BaseColumns"/>
+        FROM sys_user
+        WHERE del_flag = 0
+        <if test="username != null and username != ''">
+            AND username LIKE '%' || #{username} || '%'
+        </if>
+        <if test="realName != null and realName != ''">
+            AND real_name LIKE '%' || #{realName} || '%'
+        </if>
+        <if test="phone != null and phone != ''">
+            AND phone LIKE '%' || #{phone} || '%'
+        </if>
+        <if test="status != null">
+            AND status = #{status}
+        </if>
+        ORDER BY id DESC
+    </select>
+
+    <insert id="insert" useGeneratedKeys="false">
+        <selectKey keyProperty="id" resultType="java.lang.Long" order="BEFORE">
+            SELECT seq_sys_user.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO sys_user (id, username, password, real_name, email, phone, avatar, status, create_by, create_time)
+        VALUES (#{id}, #{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar},
+                #{status}, #{createBy}, SYSDATE)
+    </insert>
+
+    <update id="update">
+        UPDATE sys_user
+        SET username   = #{username},
+            real_name  = #{realName},
+            email      = #{email},
+            phone      = #{phone},
+            avatar     = #{avatar},
+            status     = #{status},
+            update_by  = #{updateBy},
+            update_time = SYSDATE
+        WHERE id = #{id} AND del_flag = 0
+    </update>
+
+    <update id="updatePassword">
+        UPDATE sys_user SET password = #{password}, update_time = SYSDATE
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE sys_user SET status = #{status}, update_time = SYSDATE
+        WHERE id = #{id}
+    </update>
+
+    <update id="deleteById">
+        UPDATE sys_user SET del_flag = 1, update_time = SYSDATE
+        WHERE id = #{id}
+    </update>
+</mapper>
