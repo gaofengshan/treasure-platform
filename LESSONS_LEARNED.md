@@ -194,3 +194,24 @@
 2. git init 在 sandbox 中需要 `require_escalated`，已申请 prefix_rule 留用
 3. GitHub HTTPS 认证需要用户手动完成首次 push 以缓存凭据
 4. 两仓库使用嵌套结构：`codexSpace/`（后端）包含 `treasure-ui/`（前端子目录），通过 `.gitignore` 隔离
+
+### 2026-07-07 — Phase 2 后端骨架交付
+
+| 项目 | 节点 |
+|------|------|
+| Maven 安装 | brew install 依赖 OpenJDK 26 下载极慢；改用二进制直接解压到 .maven/ |
+| Maven 本地仓库 | sandbox 阻止写 ~/.m2/repository → 用 `-Dmaven.repo.local=/tmp/m2-repo` |
+| Maven 编译 | 需要 `require_escalated` 才能下载 Maven Central 依赖 |
+| git push | 远程已配置 token（https://ghp_...@github.com/...），push 需 escalate |
+| AGENTS.md | 需记录 Maven 命令含 `-Dmaven.repo.local` 参数 |
+
+**重要教训**：
+1. Maven 编译依赖网络下载，sandbox 默认禁止 DNS 解析 → 必须 `require_escalated` 并给足够超时（>60s）
+2. MyBatis-Plus 和 MyBatis 是不同的库 —— MyBatisConfig 中误引用了 MyBatis-Plus 的类
+3. `Result<T>` 的构造方法必须是 `protected` 而非 `private`，否则 `PageResult<T>` 子类无法继承
+4. git push 的 token 认证（ghp_...）已经配置在 remote URL 中，但 DNS 解析在 sandbox 中不可靠，需要 escalate
+5. `.maven/` 安装目录必须加入 `.gitignore`，避免将 Maven 工具提交到版本控制
+6. target/ 也是构建产物，需要排除
+
+**需要完善**：
+- 可以为 `mvn compile -Dmaven.repo.local=/tmp/m2-repo` 注册 prefix_rule，避免每次重新审批
