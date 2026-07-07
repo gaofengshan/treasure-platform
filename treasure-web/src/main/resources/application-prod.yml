@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    druid:
+      url: jdbc:oracle:thin:@//prod-host:1521/PROD
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+      driver-class-name: oracle.jdbc.OracleDriver
+      initial-size: 10
+      min-idle: 10
+      max-active: 50
+
+# 生产环境关闭 MyBatis SQL 日志
+mybatis:
+  configuration:
+    log-impl: org.apache.ibatis.logging.nop.NoLoggingImpl

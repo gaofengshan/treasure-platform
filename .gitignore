@@ -1,11 +1,21 @@
 # 前端项目（独立仓库）
 treasure-ui/
 
+# Maven 本地安装
+.maven/
+
+# Maven 临时本地仓库
+/tmp/m2-repo
+
 # Node
 node_modules/
 
 # 构建产物
 dist/
+target/
+*.class
+*.jar
+*.war
 
 # IDE
 .idea/
@@ -22,12 +32,6 @@ Thumbs.db
 # 环境变量
 .env
 .env.local
-
-# Maven 构建（后续使用）
-target/
-*.class
-*.jar
-*.war
 
 # 临时文件
 *.swp
