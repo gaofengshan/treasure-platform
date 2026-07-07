@@ -47,7 +47,7 @@
 | 工具 | 状态 | 版本 |
 |------|------|------|
 | Java 17 | 已安装 | Microsoft OpenJDK 17.0.19 LTS |
-| Maven | 已安装（.maven/） | 3.9.9 |
+| Maven | 已安装（/Users/gaofengshan/java/maven） | 3.9.9 |
 | Node.js | 已安装 | v26.4.0 |
 | Docker | 待安装 | Phase 4 后再考虑 |
 | Oracle | 远程测试环境 | 12c，通过 JDBC 直连 |
@@ -153,7 +153,7 @@ treasure-platform/
 |------|------|------|
 | Java | 17 (LTS) | Microsoft OpenJDK |
 | Spring Boot | 3.2.5 | |
-| Maven | 3.9.9 | 安装在 .maven/ |
+| Maven | 3.9.9 | 安装在 /Users/gaofengshan/java/maven |
 | MyBatis | 3.0.3 (mybatis-spring-boot-starter) | Spring Boot 3.x 适配版 |
 | Druid | 1.2.22 | druid-spring-boot-3-starter |
 | PageHelper | 2.1.0 | Spring Boot 3.x 适配版 |
@@ -173,7 +173,8 @@ treasure-platform/
 
 ```sh
 # Maven 路径
-export PATH="$MAVEN_HOME/bin"
+export MAVEN_HOME=/Users/gaofengshan/java/maven
+export PATH="$MAVEN_HOME/bin:$PATH"
 
 # 编译全部模块
 mvn compile  -DskipTests
@@ -233,7 +234,7 @@ npm run build
 - 添加新模块需要在父 POM `<modules>` 注册
 - 数据库 Schema 变更需同时提供 Oracle 和达梦两版 DDL（至少 Oracle 版 + 迁移说明）
 - 前端仓库 `treasure-ui` 独立管理，前后端通过 API 约定对接
-- Maven 安装在 `.maven/` 目录，不要提交，已在 .gitignore 中排除
+- Maven 安装在 `/Users/gaofengshan/java/maven`，不要提交，已在 .gitignore 中排除
 - Docker Compose 配置放在 `deploy/` 目录下（Phase 4 后补充）
 - Jenkins Pipeline 文件放在项目根目录 `Jenkinsfile`（Phase 4 后补充）
 - 新代理首次介入时，务必阅读 `LESSONS_LEARNED.md` 了解项目推进过程中的经验教训
