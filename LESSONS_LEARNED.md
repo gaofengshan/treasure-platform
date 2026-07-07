@@ -177,3 +177,20 @@
 ---
 
 *本文件应与 AGENTS.md 一同阅读。AGENTS.md 聚焦"当前状态和规则"，本文件聚焦"我们怎么走到这里的"。*
+
+## 里程碑记录
+
+### 2026-07-07 — Phase 1 交付 + GitHub 初始化
+
+| 项目 | 节点 |
+|------|------|
+| 后端 treasure-platform | 初始化 commit + 已推送到 GitHub |
+| 前端 treasure-ui | Phase 1 骨架 45 文件 commit + 已推送到 GitHub |
+| 布局验证 | 路由 bug 修复（asyncRoutes 未注册到 router）|
+| Git 权限 | git push 凭据缓存，后续可由 Codex 自行管理版本 |
+
+**关键事件**：
+1. 首次构建后发现侧边栏和顶栏未显示 → 定位为 `asyncRoutes` 未合并到 router 实例 + 兜底路由抢占
+2. git init 在 sandbox 中需要 `require_escalated`，已申请 prefix_rule 留用
+3. GitHub HTTPS 认证需要用户手动完成首次 push 以缓存凭据
+4. 两仓库使用嵌套结构：`codexSpace/`（后端）包含 `treasure-ui/`（前端子目录），通过 `.gitignore` 隔离
