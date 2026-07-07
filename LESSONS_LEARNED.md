@@ -217,3 +217,8 @@
 - 可以为 `mvn compile -Dmaven.repo.local=/tmp/m2-repo` 注册 prefix_rule，避免每次重新审批
 - 2026-07-07: Maven 迁移至 /Users/gaofengshan/java/maven，settings.xml 配置 localRepository，不再需要 -Dmaven.repo.local 参数
 - 安装工具（Maven/Node/Docker 等）必须先问用户路径，不可擅自安装到工作目录
+
+**改进点**：
+- git push 必须在 final 回复中明确告知用户，不得默默操作
+- 首次 push 到远程仓库前，应请示用户确认后再执行
+- 出现网络性问题无法 push 时，清晰告知暂存状态并提供手动命令
