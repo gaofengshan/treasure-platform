@@ -239,3 +239,40 @@ npm run build
 - Jenkins Pipeline 文件放在项目根目录 `Jenkinsfile`（Phase 4 后补充）
 - 新代理首次介入时，务必阅读 `LESSONS_LEARNED.md` 了解项目推进过程中的经验教训
 - 每次重大决策后，更新 `LESSONS_LEARNED.md` 记录经验
+
+---
+
+## 数据库设计规范
+
+### 范式要求
+- 所有业务表必须遵循 **第三范式（3NF）**
+- 表结构设计需同时考虑 Oracle 12c 和未来达梦 DM8 的兼容性
+- 主键统一使用 `NUMBER`/`BIGINT` 自增序列（Oracle Sequence / 达梦 Sequence）
+- 通用字段：`id`, `create_by`, `create_time`, `update_by`, `update_time`, `del_flag`
+
+### 多数据库兼容要点
+- 使用标准 SQL，避免 Oracle 专属语法（`SELECT ... FROM DUAL`、`NVL`、`DECODE`、`CONNECT BY`）
+- 差异部分通过 MyBatis `databaseIdProvider` 按需分文件（`xxx-oracle.xml` / `xxx-dm.xml`）
+- 达梦侧配置 `COMPATIBLE_MODE=ORACLE` 降低迁移成本
+- 分页由 PageHelper 方言适配完成
+
+---
+
+## 开发与验证流程
+
+### 启动方式
+- **后端**：用户使用 IDEA 启动 `TreasureApplication.java`
+- **前端**：`npm run dev`（Mock）或 `npm run dev:real`（联调）
+- **验证**：Chrome 浏览器访问 `localhost:5173`
+
+### 架构演进路径
+1. **当前**：单体 Spring Boot + MyBatis + Oracle（已就绪）
+2. **优化**：引入 Redis 缓存 → 提示用户（Phase 4 后）
+3. **拆分**：微服务化（拆分 treasure-service 各 domain）→ 后续阶段
+
+---
+
+## 代理操作规范
+- 数据库建表、增删改查操作由我直接执行 SQL
+- 代码修改后，必须启动工程验证效果（依赖用户本地 IDEA + Chrome）
+- 系统优化建议以提示形式在适当阶段给出
