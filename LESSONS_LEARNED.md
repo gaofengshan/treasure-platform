@@ -272,3 +272,44 @@
 | `/system/user/{id}/status` | PUT | `@RequestBody StatusDTO` | ✅ 已修复 |
 | `/system/user/{id}/password` | PUT | `@RequestBody PasswordDTO` | ✅ 已修复 |
 | `/system/user/{id}` | DELETE | `@PathVariable` | ✅ |
+
+### 2026-07-08 — 错误提示去重规则
+
+**问题**：每个错误操作弹出两条消息（Axios 拦截器 1 条 + 组件 catch 块 1 条）
+**根因**：Axios 拦截器检测 `code !== 200` 后显示了一次错误，又 `reject` 到组件 catch 块中再显示一次
+**修复**：组件 catch 块中移除所有 `ElMessage.error()`，仅保留 Axios 拦截器作为唯一提示源
+**审计结果**：全项目 2 个 `.vue` / `.ts` 文件中共 5 处重复 catch，全部已清除
+
+**规则**：
+1. 所有业务的错误提示统一在 `src/utils/request.ts` 的 Axios 拦截器中处理
+2. 组件 catch 块**永远不做** `ElMessage.error()`，仅处理状态恢复（如 loading=false）
+3. 后端 `BizException` 的 message 必须是对用户友好的中文描述
+4. 系统级异常（如 NullPointerException）由 `GlobalExceptionHandler` 转成 "系统繁忙，请稍后重试"
+
+### 2026-07-08 — 数据库 Mapper 扫描未就绪前不要切换登录方式
+
+**现象**：修改 AuthServiceImpl 为查库登录后，admin/admin123 提示"用户名或密码错误"
+**根因**：`@MapperScan("com.company.treasury.dao.mapper")` 在启动时报 `No MyBatis mapper was found`，
+说明跨模块的 Mapper 扫描未就绪，`sysUserMapper.selectByUsername()` 返回 null
+**经验**：模块间 Mapper 注入需要先行验证；在不确定 Mapper 生效前，保持硬编码登录（原 Phasse 3 方案），
+等 DAO 层与 MapperScan 验证通过后再切换为查库
+**修复**：AuthServiceImpl 回退到硬编码 admin/admin123，保留状态校验逻辑
+
+### 2026-07-08 — @MapperScan 跨模块扫描问题
+
+**问题**：`@MapperScan("com.company.treasury.dao.mapper")` 在 `treasure-web` 模块中扫描 `treasure-dao` 模块的 Mapper 接口时，报
+`No MyBatis mapper was found`，导致 `AuthServiceImpl` 无法注入 `SysUserMapper`，登录失败。
+
+**根因**：
+- 命令行 `mvn spring-boot:run -pl treasure-web` 只运行单个模块，依赖的 `treasure-dao` JAR 不在本地仓库时 classpath 中找不到 mapper 类
+- 去掉 `@MapperScan` 也不行，因为 MyBatis Starter 3.x 的 auto-configuration 只扫描 `@SpringBootApplication` 所在包（`com.company.treasury.web`）
+
+**修复**：
+1. 保留 `@MapperScan("com.company.treasury.dao.mapper")` 在 `TreasureApplication.java` 中
+2. 父 POM 添加 `<skip>true</skip>` + `<phase>none</phase>`，让 `mvn spring-boot:run -pl treasure-web -am` 正常工作（不把 run 目标作用到父模块）
+3. IDEA 下运行不受影响（IDEA 自动将所有 module 的 target/classes 加入 classpath）
+
+**规则**：
+- 跨模块 `@MapperScan` 必须配合 `-am`（Maven）或在 IDEA 中运行
+- 新建 Mapper 接口时，确保该类在 `@MapperScan` 已声明的包路径下
+- 如果要在命令行启动，统一用 `mvn spring-boot:run -pl treasure-web -am`
