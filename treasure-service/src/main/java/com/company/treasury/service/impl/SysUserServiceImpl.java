@@ -5,7 +5,6 @@ import com.company.treasury.dao.entity.SysUser;
 import com.company.treasury.dao.mapper.SysUserMapper;
 import com.company.treasury.service.api.SysUserService;
 import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,14 +37,12 @@ public class SysUserServiceImpl implements SysUserService {
     public List<SysUser> listPage(String username, String realName, String phone, Integer status,
                                    int pageNum, int pageSize) {
         PageHelper.startPage(pageNum, pageSize);
-        List<SysUser> list = sysUserMapper.selectPage(username, realName, phone, status);
-        return list;
+        return sysUserMapper.selectPage(username, realName, phone, status);
     }
 
     @Override
     @Transactional
     public long createUser(SysUser user) {
-        // 检查用户名唯一性
         SysUser exist = sysUserMapper.selectByUsername(user.getUsername());
         if (exist != null) {
             throw new BizException(400, "用户名已存在");
@@ -75,6 +72,10 @@ public class SysUserServiceImpl implements SysUserService {
     @Override
     @Transactional
     public void changeStatus(Long id, Integer status) {
+        // 禁止关闭系统管理员
+        if (id == 1L) {
+            throw new BizException(400, "当前用户是系统管理员，禁止关闭");
+        }
         sysUserMapper.updateStatus(id, status);
     }
 

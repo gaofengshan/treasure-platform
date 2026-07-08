@@ -2,13 +2,16 @@ package com.company.treasury.service.impl;
 
 import com.company.treasury.common.exception.BizException;
 import com.company.treasury.common.model.LoginUser;
+import com.company.treasury.dao.entity.SysUser;
+import com.company.treasury.dao.mapper.SysUserMapper;
 import com.company.treasury.security.jwt.JwtTokenProvider;
 import com.company.treasury.service.api.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -16,29 +19,22 @@ import java.util.*;
 public class AuthServiceImpl implements AuthService {
 
     private final JwtTokenProvider jwtTokenProvider;
-
-    // 硬编码管理员用户（Phase 3 联调用，后续接入数据库）
-    private static final Map<String, Object> ADMIN_USER = new LinkedHashMap<>();
-
-    static {
-        ADMIN_USER.put("userId", "1");
-        ADMIN_USER.put("username", "admin");
-        ADMIN_USER.put("password", "admin123");
-        ADMIN_USER.put("realName", "系统管理员");
-        ADMIN_USER.put("avatar", "");
-        ADMIN_USER.put("email", "admin@treasury.com");
-        ADMIN_USER.put("phone", "13800138000");
-    }
+    private final SysUserMapper sysUserMapper;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public String login(String username, String password) {
-        if (!ADMIN_USER.get("username").equals(username)) {
+        SysUser user = sysUserMapper.selectByUsername(username);
+        if (user == null) {
             throw new BizException(401, "用户名或密码错误");
         }
-        if (!ADMIN_USER.get("password").equals(password)) {
+        if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BizException(401, "用户名或密码错误");
         }
-        return jwtTokenProvider.createToken(1L, username);
+        if (user.getStatus() == 0) {
+            throw new BizException(401, "用户已停用，请联系系统管理员启用");
+        }
+        return jwtTokenProvider.createToken(user.getId(), username);
     }
 
     @Override
@@ -46,21 +42,22 @@ public class AuthServiceImpl implements AuthService {
         log.info("用户退出登录: token={}", token);
     }
 
+    @Override
     public LoginUser getUserInfo(Long userId) {
-        if (userId != 1L) {
+        SysUser user = sysUserMapper.selectById(userId);
+        if (user == null) {
             throw new BizException(401, "用户不存在");
         }
 
-        LoginUser user = new LoginUser();
-        user.setUserId("1");
-        user.setUsername("admin");
-        user.setRealName("系统管理员");
-        user.setAvatar("");
-        user.setEmail("admin@treasury.com");
-        user.setPhone("13800138000");
-        user.setPermissions(List.of("*:*:*"));
+        LoginUser loginUser = new LoginUser();
+        loginUser.setUserId(String.valueOf(user.getId()));
+        loginUser.setUsername(user.getUsername());
+        loginUser.setRealName(user.getRealName());
+        loginUser.setAvatar("");
+        loginUser.setEmail(user.getEmail());
+        loginUser.setPhone(user.getPhone());
+        loginUser.setPermissions(List.of("*:*:*"));
 
-        // 菜单与前端 Mock 保持一致
         LoginUser.MenuVO dashboard = new LoginUser.MenuVO();
         dashboard.setPath("/dashboard");
         dashboard.setTitle("首页");
@@ -124,7 +121,7 @@ public class AuthServiceImpl implements AuthService {
         menuMgr.setIcon("ep:menu");
         system.setChildren(List.of(userMgr, roleMgr, menuMgr));
 
-        user.setMenus(List.of(dashboard, account, fund, payment, budget, report, system));
-        return user;
+        loginUser.setMenus(List.of(dashboard, account, fund, payment, budget, report, system));
+        return loginUser;
     }
 }

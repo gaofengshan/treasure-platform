@@ -236,3 +236,39 @@
 4. **开发闭环** — 改完代码后必须启动工程验证，使用 IDEA + Chrome
 5. **架构演进** — Redis 缓存、微服务拆分等优化在适当时机提示用户
 6. **Oracle 连接** — 配置已在 application-dev.yml 中，用户测试环境可用
+
+### 2026-07-08 — MyBatis jdbcType 必须显式声明
+
+**现象**：用户管理编辑提交后报错 `无效的列类型 1111`，事务回滚。
+**根因**：MyBatis INSERT/UPDATE 中，Java `null` 值无法自动推断 JDBC 类型 → 参数映射失败。
+**修复**：所有 INSERT/UPDATE 的可空字段补充 `jdbcType=VARCHAR|INTEGER|NUMERIC`。
+**规则**：
+- 新建 Mapper XML 时，所有 `#{xxx}` 参数都附带 `#{xxx,jdbcType=YYYY}`
+- SELECT 的查询条件参数可不加（值非 null），但稳妥起见也建议加
+- 前端编辑表单中，需要把对象的所有字段都 `Object.assign` 进去，避免遗漏
+
+### 2026-07-08 — 前后端接口传递格式规则
+
+**问题**：`changeStatus` 前端发送 `put(url, 1)`（裸数字），后端用 `@RequestBody Integer` 接收，Spring 无法解析裸数字为 JSON → 报 400。
+**同一类问题**：`changePassword` 也是 `@RequestBody String`，已一并修复。
+
+**规则（后续开发必须遵守）**：
+1. 前端 `request.put/post(url, value)` — **永远** 传 `{key: value}` 对象，不能传裸数字/字符串
+2. 后端 `@RequestBody` — 永远用 DTO 类接收，不用 `Integer`/`String` 等原生类型
+3. 删除无参数时可以不用 DTO（`@DeleteMapping("/{id}")`）
+4. POST/PUT 新增数据时用完整的 Entity 或 DTO
+
+**完整后端接口审计结果**：
+
+| 接口 | 方法 | 请求体格式 | 状态 |
+|------|------|-----------|------|
+| `/auth/login` | POST | `@RequestBody LoginRequest` | ✅ |
+| `/auth/logout` | POST | 无参数 | ✅ |
+| `/auth/user-info` | GET | 无参数 | ✅ |
+| `/system/user/page` | GET | Query params | ✅ |
+| `/system/user/{id}` | GET | `@PathVariable` | ✅ |
+| `/system/user` | POST | `@RequestBody SysUser` | ✅ |
+| `/system/user` | PUT | `@RequestBody SysUser` | ✅ |
+| `/system/user/{id}/status` | PUT | `@RequestBody StatusDTO` | ✅ 已修复 |
+| `/system/user/{id}/password` | PUT | `@RequestBody PasswordDTO` | ✅ 已修复 |
+| `/system/user/{id}` | DELETE | `@PathVariable` | ✅ |

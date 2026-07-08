@@ -4,7 +4,7 @@ spring:
       # Oracle 12c 连接 — 请根据实际测试环境修改
       driver-class-name: oracle.jdbc.OracleDriver
       url: jdbc:oracle:thin:@10.62.48.13:1521:orcl
-      username: YZDFCDB
+      username: YZBPMDB
       password: Gientech@2026
       initial-size: 5
       min-idle: 5

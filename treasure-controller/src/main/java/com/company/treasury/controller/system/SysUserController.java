@@ -1,13 +1,14 @@
 package com.company.treasury.controller.system;
 
+import com.company.treasury.common.model.PasswordDTO;
 import com.company.treasury.common.model.PageReq;
+import com.company.treasury.common.model.StatusDTO;
 import com.company.treasury.common.result.PageResult;
 import com.company.treasury.common.result.Result;
 import com.company.treasury.dao.entity.SysUser;
 import com.company.treasury.service.api.SysUserService;
 import com.github.pagehelper.PageInfo;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -48,14 +49,14 @@ public class SysUserController {
     }
 
     @PutMapping("/{id}/password")
-    public Result<Void> changePassword(@PathVariable Long id, @RequestBody String newPassword) {
-        sysUserService.changePassword(id, newPassword);
+    public Result<Void> changePassword(@PathVariable Long id, @RequestBody PasswordDTO dto) {
+        sysUserService.changePassword(id, dto.getPassword());
         return Result.success();
     }
 
     @PutMapping("/{id}/status")
-    public Result<Void> changeStatus(@PathVariable Long id, @RequestBody Integer status) {
-        sysUserService.changeStatus(id, status);
+    public Result<Void> changeStatus(@PathVariable Long id, @RequestBody StatusDTO dto) {
+        sysUserService.changeStatus(id, dto.getStatus());
         return Result.success();
     }
 

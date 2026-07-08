@@ -48,7 +48,7 @@
             AND phone LIKE '%' || #{phone} || '%'
         </if>
         <if test="status != null">
-            AND status = #{status}
+            AND status = #{status,jdbcType=INTEGER}
         </if>
         ORDER BY id DESC
     </select>
@@ -58,35 +58,36 @@
             SELECT seq_sys_user.NEXTVAL FROM DUAL
         </selectKey>
         INSERT INTO sys_user (id, username, password, real_name, email, phone, avatar, status, create_by, create_time)
-        VALUES (#{id}, #{username}, #{password}, #{realName}, #{email}, #{phone}, #{avatar},
-                #{status}, #{createBy}, SYSDATE)
+        VALUES (#{id,jdbcType=NUMERIC}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR},
+                #{realName,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR},
+                #{avatar,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, #{createBy,jdbcType=VARCHAR}, SYSDATE)
     </insert>
 
     <update id="update">
         UPDATE sys_user
-        SET username   = #{username},
-            real_name  = #{realName},
-            email      = #{email},
-            phone      = #{phone},
-            avatar     = #{avatar},
-            status     = #{status},
-            update_by  = #{updateBy},
+        SET username   = #{username,jdbcType=VARCHAR},
+            real_name  = #{realName,jdbcType=VARCHAR},
+            email      = #{email,jdbcType=VARCHAR},
+            phone      = #{phone,jdbcType=VARCHAR},
+            avatar     = #{avatar,jdbcType=VARCHAR},
+            status     = #{status,jdbcType=INTEGER},
+            update_by  = #{updateBy,jdbcType=VARCHAR},
             update_time = SYSDATE
-        WHERE id = #{id} AND del_flag = 0
+        WHERE id = #{id,jdbcType=NUMERIC} AND del_flag = 0
     </update>
 
     <update id="updatePassword">
-        UPDATE sys_user SET password = #{password}, update_time = SYSDATE
-        WHERE id = #{id}
+        UPDATE sys_user SET password = #{password,jdbcType=VARCHAR}, update_time = SYSDATE
+        WHERE id = #{id,jdbcType=NUMERIC}
     </update>
 
     <update id="updateStatus">
-        UPDATE sys_user SET status = #{status}, update_time = SYSDATE
-        WHERE id = #{id}
+        UPDATE sys_user SET status = #{status,jdbcType=INTEGER}, update_time = SYSDATE
+        WHERE id = #{id,jdbcType=NUMERIC}
     </update>
 
     <update id="deleteById">
         UPDATE sys_user SET del_flag = 1, update_time = SYSDATE
-        WHERE id = #{id}
+        WHERE id = #{id,jdbcType=NUMERIC}
     </update>
 </mapper>
