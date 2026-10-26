@@ -45,6 +45,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <skip>false</skip>
                     <mainClass>com.company.treasury.web.TreasureApplication</mainClass>
                 </configuration>
             </plugin>

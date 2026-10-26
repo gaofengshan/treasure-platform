@@ -313,3 +313,8 @@
 - 跨模块 `@MapperScan` 必须配合 `-am`（Maven）或在 IDEA 中运行
 - 新建 Mapper 接口时，确保该类在 `@MapperScan` 已声明的包路径下
 - 如果要在命令行启动，统一用 `mvn spring-boot:run -pl treasure-web -am`
+
+### 2026-07-08 — 启动前端前应先清理旧进程
+
+**问题**：多次启动前端导致 Vite 端口依次顺延（5173→5174→5175），遗留多个僵尸进程。
+**正确做法**：每次启动前先 `lsof -ti:5173 -ti:5174 -ti:5175 | xargs kill -9` 清理旧进程。
